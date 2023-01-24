@@ -63,7 +63,6 @@
     <Compile Include="LupusecXT2PlusPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LoupedeckPackage.yaml" />
     <None Include="metadata\LoupedeckPackage.yaml" />
     <None Include="packages.config" />
   </ItemGroup>

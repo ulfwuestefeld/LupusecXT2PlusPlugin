@@ -9,7 +9,7 @@ type: plugin4
 name: LupusecXT2Plus
 
 # Name that is displayed in the Loupedeck configuration application.
-displayName: LupusecXT2Plus
+displayName: Lupusec XT2+
 
 # Name of the plugin library file.
 pluginFileName: LupusecXT2PlusPlugin.dll
@@ -18,10 +18,10 @@ pluginFileName: LupusecXT2PlusPlugin.dll
 version: 0.1
 
 # Author of the plugin. The author can be a company or an individual developer.
-author: u.wuestefeld
+author: Ulf Wüstefeld
 
 # Copyright information.
-copyright: Copyright © 2023 u.wuestefeld. All rights reserved.
+copyright: Copyright © 2023 Ulf Wüstefeld. All rights reserved.
 
 
 # ==================================================================================================
@@ -67,7 +67,7 @@ licenseUrl: https://opensource.org/licenses/MIT
 # URL of the support page where the users can send improvement suggestions and report bugs.
 # The URL is shown in Loupedeck Marketplace. The page can be for example a GitHub issues page.
 # NOTE: This setting is recommended when publishing the plugin in Loupedeck Marketplace.
-#supportPageUrl: https://github.com/myusername/myplugin/issues
+#supportPageUrl: https://github.com/ulfwuestefeld/LupusecXT2PlusPlugin/issues
 
 # URL of the plugin homepage. The URL is shown in Loupedeck Marketplace.
-#homePageUrl: https://github.com/myusername/myplugin
+#homePageUrl: https://github.com/ulfwuestefeld/LupusecXT2PlusPlugin
