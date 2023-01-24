@@ -3,11 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Security.Cryptography;
-    using System.Security.Policy;
     using System.Text;
-    using System.Threading.Tasks;
+
     using Newtonsoft.Json.Linq;
 
     public class Config
@@ -26,7 +24,7 @@
             }
             if (configdata != "")
             {
-                Dictionary<String,String> cfg = new Dictionary<String,String>();
+                Dictionary<String, String> cfg = new Dictionary<String, String>();
                 JObject configjson = JObject.Parse(configdata);
                 cfg.Add("uri", configjson.SelectToken("uri").ToString());
                 //uri = configjson.SelectToken("uri").ToString();
@@ -77,7 +75,7 @@
                 JObject configjsonw = (JObject)configwriter.Token;
                 System.IO.File.WriteAllText(configfile, configjsonw.ToString());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }

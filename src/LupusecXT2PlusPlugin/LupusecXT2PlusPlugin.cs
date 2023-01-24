@@ -2,11 +2,6 @@ namespace Loupedeck.LupusecXT2PlusPlugin
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Security.Cryptography;
-    using System.Text;
-
-    using Newtonsoft.Json.Linq;
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
