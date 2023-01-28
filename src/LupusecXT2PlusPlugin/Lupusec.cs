@@ -9,6 +9,8 @@
 
     public class Request
     {
+        private static long gotTokenTicks = 0;
+        private static String currentToken = "";
         public Boolean Set(String command, String data)
         {
             return SetData(command, data);
@@ -21,17 +23,7 @@
 
         private Boolean SetData(String command, String data)
         {
-            String tokendata = this.GetData("/action/tokenGet");
-            var token = "";
-            if (tokendata != "")
-            {
-                JObject json = JObject.Parse(tokendata);
-                token = json.SelectToken("message").ToString();
-            }
-            else
-            {
-                return false;
-            }
+            var token = GetToken();
             if (token != "")
             {
                 try
@@ -44,15 +36,18 @@
                     request.Method = "POST";
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.ContentLength = postdata.Length;
-                    if (LupusecXT2PlusPlugin.ignorecertificationerrors)
+                    if (LupusecXT2PlusPlugin.uri.StartsWith("https://"))
                     {
-                        System.Net.ServicePointManager.ServerCertificateValidationCallback +=
-                            delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-                                System.Security.Cryptography.X509Certificates.X509Chain chain,
-                                System.Net.Security.SslPolicyErrors sslPolicyErrors)
-                            {
-                                return true; // **** Always accept
-                            };
+                        if (LupusecXT2PlusPlugin.ignorecertificationerrors)
+                        {
+                            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+                                delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+                                    System.Security.Cryptography.X509Certificates.X509Chain chain,
+                                    System.Net.Security.SslPolicyErrors sslPolicyErrors)
+                                {
+                                    return true; // **** Always accept
+                                };
+                        }
                     }
                     Stream requeststream = request.GetRequestStream();
                     requeststream.Write(postdata, 0, postdata.Length);
@@ -87,6 +82,25 @@
                 return false;
             }
         }
+
+        private string GetToken()
+        {
+            DateTime currentDate = DateTime.Now;
+            long elapsedTicks = currentDate.Ticks - gotTokenTicks;
+            TimeSpan elapsedSpan = new TimeSpan(elapsedTicks);
+            if (elapsedSpan.TotalMinutes > 5)
+            {
+                String tokendata = this.GetData("/action/tokenGet");
+                if (tokendata != "")
+                {
+                    JObject json = JObject.Parse(tokendata);
+                    currentToken = json.SelectToken("message").ToString();
+                }
+                gotTokenTicks = currentDate.Ticks;
+            }
+            return currentToken;
+        }
+
         private String GetData(String command)
         {
             String data = "";
@@ -95,15 +109,18 @@
                 HttpWebRequest request = WebRequest.Create(LupusecXT2PlusPlugin.uri + command) as HttpWebRequest;
                 request.Credentials = new NetworkCredential(LupusecXT2PlusPlugin.user, LupusecXT2PlusPlugin.password);
                 request.PreAuthenticate = true;
-                if (LupusecXT2PlusPlugin.ignorecertificationerrors)
+                if (LupusecXT2PlusPlugin.uri.StartsWith("https://"))
                 {
-                    System.Net.ServicePointManager.ServerCertificateValidationCallback +=
-                        delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
-                            System.Security.Cryptography.X509Certificates.X509Chain chain,
-                            System.Net.Security.SslPolicyErrors sslPolicyErrors)
-                        {
-                            return true; // **** Always accept
-                        };
+                    if (LupusecXT2PlusPlugin.ignorecertificationerrors)
+                    {
+                        System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+                            delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
+                                System.Security.Cryptography.X509Certificates.X509Chain chain,
+                                System.Net.Security.SslPolicyErrors sslPolicyErrors)
+                            {
+                                return true; // **** Always accept
+                            };
+                    }
                 }
                 HttpWebResponse response = request.GetResponse() as HttpWebResponse;
                 if (response.StatusCode == HttpStatusCode.OK)

@@ -40,7 +40,7 @@
                 {
                     password = password.Substring(5);
                     password = Decode(password);
-                    cfg.Add("password", configjson.SelectToken("password").ToString());
+                    cfg.Add("password", password);
                 }
                 else
                 {
