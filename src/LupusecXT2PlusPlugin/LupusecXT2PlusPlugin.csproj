@@ -73,6 +73,9 @@
     <EmbeddedResource Include="Actions\SetMode0.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Actions\SetMode2.png" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Actions\SetMode1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

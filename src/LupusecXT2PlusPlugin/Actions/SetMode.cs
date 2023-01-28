@@ -10,28 +10,31 @@ namespace Loupedeck.LupusecXT2PlusPlugin
 
         private readonly String _image0ResourcePath;
         private readonly String _image1ResourcePath;
+        private readonly String _image2ResourcePath;
 
         public SetMode() : base(displayName: "Set Mode", description: "Sets Mode to Home or Disarm", groupName: "Mode")
         {
             this._image0ResourcePath = EmbeddedResources.FindFile("SetMode0.png");
             this._image1ResourcePath = EmbeddedResources.FindFile("SetMode1.png");
+            this._image2ResourcePath = EmbeddedResources.FindFile("SetMode2.png");
         }
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             Lupusec.Request lrequest = new Lupusec.Request();
-
-            String data = lrequest.Get("/action/panelCondGet");
-            if (data != "")
+            String mode_a1 = lrequest.GetModeA1();
+            if (mode_a1 != "")
             {
-                JObject json = JObject.Parse(data);
-                var mode_a1 = (json.SelectToken("updates.mode_a1")).ToString();
-
-                if (mode_a1 == "{AREA_MODE_2}")
+                if (mode_a1 == "HOME")
+                {
+                    this._arm = true;
+                    return EmbeddedResources.ReadImage(this._image2ResourcePath);
+                }
+                if (mode_a1 == "ARM")
                 {
                     this._arm = true;
                     return EmbeddedResources.ReadImage(this._image1ResourcePath);
                 }
-                if (mode_a1 == "{AREA_MODE_0}")
+                if (mode_a1 == "DISARM")
                 {
                     this._arm = false;
                     return EmbeddedResources.ReadImage(this._image0ResourcePath);
@@ -41,13 +44,13 @@ namespace Loupedeck.LupusecXT2PlusPlugin
         }
         protected override void RunCommand(String actionParameter)
         {
-            var mode = "2";
+            var mode = "HOME";
             if (this._arm)
             {
-                mode = "0";
+                mode = "DISARM";
             }
             Lupusec.Request lrequest = new Lupusec.Request();
-            if (lrequest.Set("/action/panelCondPost", ("area=1&mode=" + mode)))
+            if (lrequest.SetModeA1(mode))
             {
                 this.ActionImageChanged();
             }

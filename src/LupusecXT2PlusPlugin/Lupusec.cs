@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Linq.Expressions;
     using System.Net;
     using System.Text;
 
@@ -9,21 +10,52 @@
 
     public class Request
     {
-        private static long gotTokenTicks = 0;
+        private static Int64 gotTokenTicks = 0;
         private static String currentToken = "";
-        public Boolean Set(String command, String data)
+        public Boolean SetModeA1(String mode)
         {
-            return SetData(command, data);
+            Boolean ret = false;
+            switch (mode.ToUpper())
+            {
+                case "HOME":
+                    this.SetData("/action/panelCondPost", "area=1&mode=2");
+                    ret = true;
+                    break;
+                case "ARM":
+                    this.SetData("/action/panelCondPost", "area=1&mode=1");
+                    ret = true;
+                    break;
+                case "DISARM":
+                    this.SetData("/action/panelCondPost", "area=1&mode=0");
+                    ret = true;
+                    break;
+            }
+            return ret;
         }
 
-        public String Get(String command)
+        public String GetModeA1()
         {
-            return GetData(command);
+            String data = this.GetData("/action/panelCondGet");
+            if (data != "")
+            {
+                JObject json = JObject.Parse(data);
+                var mode_a1 = json.SelectToken("updates.mode_a1").ToString();
+                if (mode_a1 == "{AREA_MODE_2}")
+                {
+                    return "HOME";
+                }
+                else if(mode_a1 == "{AREA_MODE_0}")
+                {
+                    return "DISARM";
+                }
+            }
+            return "";
         }
+
 
         private Boolean SetData(String command, String data)
         {
-            var token = GetToken();
+            var token = this.GetToken();
             if (token != "")
             {
                 try
@@ -83,10 +115,10 @@
             }
         }
 
-        private string GetToken()
+        private String GetToken()
         {
             DateTime currentDate = DateTime.Now;
-            long elapsedTicks = currentDate.Ticks - gotTokenTicks;
+            Int64 elapsedTicks = currentDate.Ticks - gotTokenTicks;
             TimeSpan elapsedSpan = new TimeSpan(elapsedTicks);
             if (elapsedSpan.TotalMinutes > 5)
             {
@@ -134,7 +166,7 @@
                 response.Close();
                 return data;
             }
-            catch (Exception ex)
+            catch
             {
                 return data;
             }
