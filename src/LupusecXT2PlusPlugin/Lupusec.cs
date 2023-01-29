@@ -1,14 +1,13 @@
-﻿namespace Loupedeck.LupusecXT2PlusPlugin.Lupusec
+﻿namespace Loupedeck.LupusecXT2PlusPlugin
 {
     using System;
     using System.IO;
-    using System.Linq.Expressions;
     using System.Net;
     using System.Text;
 
     using Newtonsoft.Json.Linq;
 
-    public class Request
+    public class Lupusec
     {
         private static Int64 gotTokenTicks = 0;
         private static String currentToken = "";
@@ -44,7 +43,7 @@
                 {
                     return "HOME";
                 }
-                else if(mode_a1 == "{AREA_MODE_0}")
+                else if (mode_a1 == "{AREA_MODE_0}")
                 {
                     return "DISARM";
                 }
@@ -55,22 +54,28 @@
 
         private Boolean SetData(String command, String data)
         {
+            Config cfg = new Config();
+            String uri = cfg.GetURI();
+            String user = cfg.GetUsername();
+            String password = cfg.GetPassword();
+            Boolean ignorecertificationerrors = cfg.GetIgnoreCertificatioErrors();
+
             var token = this.GetToken();
             if (token != "")
             {
                 try
                 {
                     Byte[] postdata = Encoding.ASCII.GetBytes(data);
-                    HttpWebRequest request = WebRequest.Create(LupusecXT2PlusPlugin.uri + command) as HttpWebRequest;
-                    request.Credentials = new NetworkCredential(LupusecXT2PlusPlugin.user, LupusecXT2PlusPlugin.password);
+                    HttpWebRequest request = WebRequest.Create(uri + command) as HttpWebRequest;
+                    request.Credentials = new NetworkCredential(user, password);
                     request.Headers.Add("X-Token", token);
                     request.PreAuthenticate = true;
                     request.Method = "POST";
                     request.ContentType = "application/x-www-form-urlencoded";
                     request.ContentLength = postdata.Length;
-                    if (LupusecXT2PlusPlugin.uri.StartsWith("https://"))
+                    if (uri.StartsWith("https://"))
                     {
-                        if (LupusecXT2PlusPlugin.ignorecertificationerrors)
+                        if (ignorecertificationerrors)
                         {
                             System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                                 delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,
@@ -135,15 +140,21 @@
 
         private String GetData(String command)
         {
+            Config cfg = new Config();
+            String uri = cfg.GetURI();
+            String user = cfg.GetUsername();
+            String password = cfg.GetPassword();
+            Boolean ignorecertificationerrors = cfg.GetIgnoreCertificatioErrors();
+
             String data = "";
             try
             {
-                HttpWebRequest request = WebRequest.Create(LupusecXT2PlusPlugin.uri + command) as HttpWebRequest;
-                request.Credentials = new NetworkCredential(LupusecXT2PlusPlugin.user, LupusecXT2PlusPlugin.password);
+                HttpWebRequest request = WebRequest.Create(uri + command) as HttpWebRequest;
+                request.Credentials = new NetworkCredential(user, password);
                 request.PreAuthenticate = true;
-                if (LupusecXT2PlusPlugin.uri.StartsWith("https://"))
+                if (uri.StartsWith("https://"))
                 {
-                    if (LupusecXT2PlusPlugin.ignorecertificationerrors)
+                    if (ignorecertificationerrors)
                     {
                         System.Net.ServicePointManager.ServerCertificateValidationCallback +=
                             delegate (object sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,

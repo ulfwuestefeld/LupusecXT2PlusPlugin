@@ -2,8 +2,6 @@ namespace Loupedeck.LupusecXT2PlusPlugin
 {
     using System;
 
-    using Newtonsoft.Json.Linq;
-
     public class SetMode : PluginDynamicCommand
     {
         private Boolean _arm = false;
@@ -20,7 +18,7 @@ namespace Loupedeck.LupusecXT2PlusPlugin
         }
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            Lupusec.Request lrequest = new Lupusec.Request();
+            Lupusec lrequest = new Lupusec();
             String mode_a1 = lrequest.GetModeA1();
             if (mode_a1 != "")
             {
@@ -49,7 +47,7 @@ namespace Loupedeck.LupusecXT2PlusPlugin
             {
                 mode = "DISARM";
             }
-            Lupusec.Request lrequest = new Lupusec.Request();
+            Lupusec lrequest = new Lupusec();
             if (lrequest.SetModeA1(mode))
             {
                 this.ActionImageChanged();

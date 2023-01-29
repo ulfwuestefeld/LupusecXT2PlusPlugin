@@ -10,7 +10,39 @@
 
     public class Config
     {
-        public Dictionary<String, String> Read(String configfile)
+        private static readonly String configfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\.lupusecxt2plusplugin.json";
+
+        public String GetURI()
+        {
+            Dictionary<String, String> config = this.Read(Config.configfile);
+            config.TryGetValue("uri", out String ret);
+            return ret;
+        }
+        public String GetUsername()
+        {
+            Dictionary<String, String> config = this.Read(Config.configfile);
+            config.TryGetValue("user", out String ret);
+            return ret;
+        }
+        public String GetPassword()
+        {
+            Dictionary<String, String> config = this.Read(Config.configfile);
+            config.TryGetValue("password", out String ret);
+            return ret;
+
+        }
+        public Boolean GetIgnoreCertificatioErrors()
+        {
+            Boolean ret = false;
+            Dictionary<String, String> config = this.Read(Config.configfile);
+            config.TryGetValue("ignorecertificationerrors", out String ignorecert);
+            if (ignorecert == "1")
+            {
+                ret = true;
+            }
+            return ret;
+        }
+        private Dictionary<String, String> Read(String configfile)
         {
             var configdata = "";
             try
