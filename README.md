@@ -34,5 +34,5 @@ The *password* will be encrypted after the first start of the plugin. Everytime 
 If you have any official certificate you may deactivate *ignorecertificationerrors*. Just set it to 0 and your certificate will be checked.<br>
 *username* and *password* are your Lupusec XT2+ login username and password.
 
-##Smarthome
+## Smarthome
 To control smarthome devices you need to define groups like "Group1" in the example and add the names of devices.
