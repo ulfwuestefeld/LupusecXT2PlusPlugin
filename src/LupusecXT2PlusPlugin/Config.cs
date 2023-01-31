@@ -42,6 +42,46 @@
             }
             return ret;
         }
+
+        public List<String> GetGroups()
+        {
+            List<String> grouplist = new List<String> { };
+            Dictionary<String, String> config = this.Read(Config.configfile);
+            if (config.TryGetValue("smarthomegroups", out String smarthomegroups))
+            {
+                JArray tokens = JArray.Parse(smarthomegroups);
+                foreach (JToken token in tokens)
+                {
+                    grouplist.Add(token.SelectToken("name").ToString());
+                }
+            }
+            return grouplist;
+        }
+        public List<String> GetDevices(String groupname = "")
+        {
+            List<String> devicelist = new List<String> { };
+            if (groupname == null)
+            {
+                return devicelist;
+            }
+            Dictionary<String, String> config = this.Read(Config.configfile);
+            if (config.TryGetValue("smarthomegroups", out String smarthomegroups))
+            {
+                JArray tokens = JArray.Parse(smarthomegroups);
+                foreach (JToken token in tokens)
+                {
+                    if (token.SelectToken("name").ToString().ToLower() == groupname.ToLower() || groupname == "")
+                    {
+                        JArray devicetokens = JArray.Parse(token.SelectToken("devices").ToString());
+                        foreach (JToken devicetoken in devicetokens)
+                        {
+                            devicelist.Add(devicetoken.SelectToken("name").ToString());
+                        }
+                    }
+                }
+            }
+            return devicelist;
+        }
         private Dictionary<String, String> Read(String configfile)
         {
             var configdata = "";
@@ -66,6 +106,7 @@
                 //    ignorecertificationerrors = true;
                 //}
                 cfg.Add("user", configjson.SelectToken("username").ToString());
+                cfg.Add("smarthomegroups", configjson.SelectToken("smarthomegroups").ToString());
                 //user = configjson.SelectToken("username").ToString();
                 String password = configjson.SelectToken("password").ToString();
                 if (password.StartsWith("<enc>"))

@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.LupusecXT2PlusPlugin
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Text;
@@ -11,6 +12,13 @@
     {
         private static Int64 gotTokenTicks = 0;
         private static String currentToken = "";
+
+        private const String SmarthomeStatusOn = "{WEB_MSG_PSS_ON}";
+        private const String SmarthomeStatusOff = "{WEB_MSG_PSS_OFF}";
+
+        private const String ModeStatusArm = "{AREA_MODE_1}";
+        private const String ModeStatusHome = "{AREA_MODE_2}";
+        private const String ModeStatusDisarm = "{AREA_MODE_0}";
         public Boolean SetModeA1(String mode)
         {
             Boolean ret = false;
@@ -32,6 +40,97 @@
             return ret;
         }
 
+        public Boolean GroupOn(String groupname = "")
+        {
+            Boolean ret = false;
+            var devices = GetSmarthomeDevices(groupname);
+            foreach (var device in devices)
+            {
+                if (device.Status == "on")
+                {
+                    ret = true;
+                }
+            }
+            return ret;
+        }
+
+        public Boolean SmarthomeDevicesOn(String groupname = "")
+        {
+            Boolean ret = false;
+            var devices = this.GetSmarthomeDevices(groupname);
+            while (!this.GroupOn(groupname))
+            {
+                foreach (var device in devices)
+                {
+                    if (device.Status != "on")
+                    {
+                        this.SetData("/action/deviceSwitchPSSPost", "id=" + device.Id + "&switch=1");
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+                devices = this.GetSmarthomeDevices(groupname);
+            }
+            ret = this.GroupOn(groupname);
+            return ret;
+        }
+        public Boolean SmarthomeDevicesOff(String groupname = "")
+        {
+            Boolean ret = false;
+            var devices = this.GetSmarthomeDevices(groupname);
+            while (this.GroupOn(groupname))
+            {
+                foreach (var device in devices)
+                {
+                    if (device.Status != "off")
+                    {
+                        this.SetData("/action/deviceSwitchPSSPost", "id=" + device.Id + "&switch=0");
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+                devices = this.GetSmarthomeDevices(groupname);
+            }
+            ret = this.GroupOn(groupname);
+            return ret;
+        }
+
+        public List<(String Name, String Id, String Type, String Status)> GetSmarthomeDevices(String groupname = "")
+        {
+            var devices = new List<(String Name, String Id, String Type, String Status)> { };
+            String data = this.GetData("/action/deviceListPSSGet");
+            List<String> devicelist = new List<String> { };
+            if (data != "")
+            {
+                if (groupname != "")
+                {
+                    Config cfg = new Config();
+                    devicelist = cfg.GetDevices(groupname);
+                }
+
+                JToken tokens = JObject.Parse(data).SelectToken("pssrows");
+                foreach (JToken token in tokens)
+                {
+                    var name = token.SelectToken("name").ToString();
+                    if (groupname != "")
+                    {
+                        if (!devicelist.Contains(name))
+                        {
+                            continue;
+                        }
+                    }
+                    var id = token.SelectToken("id").ToString();
+                    var type = token.SelectToken("type").ToString();
+                    var status = token.SelectToken("status").ToString();
+                    String onoff = "off";
+                    if (status == SmarthomeStatusOn)
+                    {
+                        onoff = "on";
+                    }
+                    devices.Add((name, id, type, onoff));
+                }
+            }
+            return devices;
+        }
+
         public String GetModeA1()
         {
             String data = this.GetData("/action/panelCondGet");
@@ -39,11 +138,11 @@
             {
                 JObject json = JObject.Parse(data);
                 var mode_a1 = json.SelectToken("updates.mode_a1").ToString();
-                if (mode_a1 == "{AREA_MODE_2}")
+                if (mode_a1 == ModeStatusHome)
                 {
                     return "HOME";
                 }
-                else if (mode_a1 == "{AREA_MODE_0}")
+                else if (mode_a1 == ModeStatusDisarm)
                 {
                     return "DISARM";
                 }
